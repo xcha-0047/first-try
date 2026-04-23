@@ -1,1 +1,653 @@
-<!DOCTYPE html>\n<html lang='en'>\n<head>\n    <meta charset='UTF-8'>\n    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n    <title>Pong Game</title>\n    <style>\n        body {\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            margin: 0;\n            background-color: black;\n        }\n        canvas {\n            border: 1px solid white;\n        }\n    </style>\n</head>\n<body>\n    <canvas id='pong' width='800' height='400'></canvas>\n    <script>\n        const canvas = document.getElementById('pong');\n        const context = canvas.getContext('2d');\n        const user = {\n            x: 0,\n            y: canvas.height / 2 - 50,\n            width: 10,\n            height: 100,\n            color: 'white',\n            score: 0\n        };\n        const computer = {\n            x: canvas.width - 10,\n            y: canvas.height / 2 - 50,\n            width: 10,\n            height: 100,\n            color: 'white',\n            score: 0\n        };\n        const ball = {\n            x: canvas.width / 2,\n            y: canvas.height / 2,\n            radius: 10,\n            speed: 4,\n            velocityX: 4,\n            velocityY: 4,\n            color: 'white'\n        };\n        const net = {\n            x: canvas.width / 2 - 1,\n            y: 0,\n            width: 2,\n            height: 10\n        };\n        function drawRect(x, y, w, h, color) {\n            context.fillStyle = color;\n            context.fillRect(x, y, w, h);\n        }\n        function drawArc(x, y, r, color) {\n            context.fillStyle = color;\n            context.beginPath();\n            context.arc(x, y, r, 0, Math.PI * 2, false);\n            context.closePath();\n            context.fill();\n        }\n        function drawNet() {\n            for (let i = 0; i < canvas.height; i += 15) {\n                drawRect(net.x, net.y + i, net.width, net.height);\n            }\n        }\n        function drawText(text, x, y) {\n            context.fillStyle = 'white';\n            context.font = '35px Arial';\n            context.fillText(text, x, y);\n        }\n        function update() {\n            ball.x += ball.velocityX;\n            ball.y += ball.velocityY;\n            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {\n                ball.velocityY = -ball.velocityY;\n            }\n            let player = (ball.x < canvas.width / 2) ? user : computer;\n            if (collision(ball, player)) {\n                ball.velocityX = -ball.velocityX;            }\n            if (ball.x - ball.radius < 0) {\n                computer.score++;\n                resetBall();\n            } else if (ball.x + ball.radius > canvas.width) {\n                user.score++;\n                resetBall();\n            }\n            computerAI();\n        }\n        function collision(ball, player) {\n            player.top = player.y;\n            player.bottom = player.y + player.height;\n            player.left = player.x;\n            player.right = player.x + player.width;\n            ball.top = ball.y - ball.radius;\n            ball.bottom = ball.y + ball.radius;\n            ball.left = ball.x - ball.radius;\n            ball.right = ball.x + ball.radius;\n            return (ball.right > player.left && ball.left < player.right && ball.bottom > player.top && ball.top < player.bottom);\n        }\n        function computerAI() {\n            if (computer.y < ball.y - computer.height / 2) {\n                computer.y += 4;\n            } else {\n                computer.y -= 4;\n            }\n        }\n        function resetBall() {\n            ball.x = canvas.width / 2;\n            ball.y = canvas.height / 2;\n            ball.velocityX = -ball.velocityX;\n        }\n        document.addEventListener('mousemove', (event) => {\n            user.y = event.clientY - canvas.offsetTop - user.height / 2;\n            if (user.y < 0) user.y = 0;\n            if (user.y + user.height > canvas.height) user.y = canvas.height - user.height;\n        });\n        document.addEventListener('keydown', (event) => {\n            switch (event.key) {\n                case 'ArrowUp':\n                    user.y -= 20;\n                    break;\n                case 'ArrowDown':\n                    user.y += 20;\n                    break;\n            }\n        });\n        function gameLoop() {\n            context.clearRect(0, 0, canvas.width, canvas.height);\n            drawNet();\n            drawText(user.score, canvas.width / 4, canvas.height / 5);\n            drawText(computer.score, 3 * canvas.width / 4, canvas.height / 5);\n            drawRect(user.x, user.y, user.width, user.height, user.color);\n            drawRect(computer.x, computer.y, computer.width, computer.height, computer.color);\n            drawArc(ball.x, ball.y, ball.radius, ball.color);\n            update();\n            requestAnimationFrame(gameLoop);\n        }\n        gameLoop();\n    </script>\n</body>\n</html>\n
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给董昊闻的星空祝福</title>
+    <style>
+        :root {
+            --sky-top: #030617;
+            --sky-mid: #071432;
+            --sky-bottom: #10254a;
+            --mist: rgba(145, 196, 255, 0.14);
+            --star-core: #fff7da;
+            --star-glow: rgba(255, 235, 158, 0.8);
+            --star-ring: rgba(160, 225, 255, 0.42);
+            --wish-text: #fff6d6;
+            --wish-outline: rgba(85, 32, 54, 0.45);
+            --accent: #ff9dc4;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(109, 154, 255, 0.16), transparent 30%),
+                radial-gradient(circle at 80% 18%, rgba(255, 170, 210, 0.12), transparent 26%),
+                radial-gradient(circle at 50% 72%, rgba(126, 193, 255, 0.12), transparent 32%),
+                linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+            color: #fff;
+        }
+
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .scene::before,
+        .scene::after {
+            content: "";
+            position: absolute;
+            inset: auto;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(18px);
+            opacity: 0.85;
+        }
+
+        .scene::before {
+            width: 32vmin;
+            height: 32vmin;
+            left: -8vmin;
+            bottom: -10vmin;
+            background: var(--mist);
+        }
+
+        .scene::after {
+            width: 26vmin;
+            height: 26vmin;
+            right: -5vmin;
+            top: 8vmin;
+            background: rgba(255, 174, 210, 0.13);
+        }
+
+        .dust,
+        .heart-stars,
+        .wish-layer,
+        .hint {
+            position: absolute;
+            inset: 0;
+        }
+
+        .dust-point {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.75);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+            animation: dustTwinkle linear infinite;
+            pointer-events: none;
+        }
+
+        .title-wrap {
+            position: absolute;
+            top: 6vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(88vw, 760px);
+            text-align: center;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 4.2rem);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: #fffaf2;
+            text-shadow:
+                0 0 12px rgba(255, 223, 160, 0.55),
+                0 0 24px rgba(255, 172, 210, 0.25);
+        }
+
+        .title-wrap p {
+            margin: 0.9rem auto 0;
+            width: min(72vw, 560px);
+            font-size: clamp(0.95rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            color: rgba(240, 245, 255, 0.82);
+            text-shadow: 0 0 10px rgba(16, 36, 83, 0.7);
+        }
+
+        .heart-stars {
+            z-index: 3;
+        }
+
+        .star {
+            position: absolute;
+            width: var(--size);
+            height: var(--size);
+            transform: translate(-50%, -50%);
+            border: 0;
+            padding: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            background:
+                radial-gradient(circle, rgba(255, 255, 255, 0.98) 0 22%, rgba(255, 249, 219, 0.96) 22% 42%, rgba(255, 236, 164, 0.6) 42% 62%, rgba(255, 236, 164, 0) 63%);
+            box-shadow:
+                0 0 10px rgba(255, 237, 163, 0.95),
+                0 0 22px rgba(141, 221, 255, 0.55),
+                0 0 36px rgba(255, 188, 221, 0.34);
+            animation:
+                twinkle var(--twinkle-duration) ease-in-out infinite,
+                floatDrift var(--float-duration) ease-in-out infinite;
+            animation-delay: var(--delay), calc(var(--delay) * -1.7);
+        }
+
+        .star::before,
+        .star::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        .star::before {
+            width: 200%;
+            height: 24%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 250, 228, 0.88) 50%, transparent 100%);
+            filter: blur(0.8px);
+            opacity: 0.8;
+        }
+
+        .star::after {
+            width: 24%;
+            height: 200%;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 250, 228, 0.88) 50%, transparent 100%);
+            filter: blur(0.8px);
+            opacity: 0.8;
+        }
+
+        .star:hover {
+            transform: translate(-50%, -50%) scale(1.25);
+            box-shadow:
+                0 0 16px rgba(255, 237, 163, 1),
+                0 0 34px rgba(141, 221, 255, 0.78),
+                0 0 52px rgba(255, 188, 221, 0.45);
+        }
+
+        .star:active {
+            transform: translate(-50%, -50%) scale(0.94);
+        }
+
+        .wish-layer {
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .wish {
+            position: absolute;
+            left: var(--x);
+            top: var(--y);
+            white-space: nowrap;
+            transform: translate(-50%, -50%) rotate(var(--rotate));
+            color: var(--wish-text);
+            font-family: "STKaiti", "KaiTi", "STSong", "FangSong", serif;
+            font-size: clamp(1rem, 2vw, 1.45rem);
+            letter-spacing: 0.06em;
+            text-shadow:
+                0 0 10px rgba(255, 223, 181, 0.78),
+                0 0 20px rgba(255, 177, 217, 0.3),
+                1px 1px 0 var(--wish-outline);
+            animation: wishFade 2.1s ease-out forwards;
+        }
+
+        .hint {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 4.4vh;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .hint span {
+            padding: 0.75rem 1.3rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            background: rgba(4, 13, 32, 0.28);
+            backdrop-filter: blur(8px);
+            color: rgba(239, 246, 255, 0.8);
+            font-size: clamp(0.85rem, 1.6vw, 1rem);
+            letter-spacing: 0.08em;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.45;
+                filter: saturate(0.9);
+            }
+            50% {
+                opacity: 1;
+                filter: saturate(1.2);
+            }
+        }
+
+        @keyframes floatDrift {
+            0%, 100% {
+                margin-top: -2px;
+            }
+            50% {
+                margin-top: 3px;
+            }
+        }
+
+        @keyframes dustTwinkle {
+            0%, 100% {
+                opacity: 0.18;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.95;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes wishFade {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(0, 14px) scale(0.9) rotate(var(--rotate));
+            }
+            15% {
+                opacity: 1;
+            }
+            72% {
+                opacity: 0.94;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(var(--drift-x), var(--drift-y)) scale(1.08) rotate(var(--rotate));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title-wrap {
+                top: 5vh;
+            }
+
+            .title-wrap p {
+                width: min(82vw, 560px);
+            }
+
+            .hint {
+                padding-bottom: 3.2vh;
+            }
+
+            .hint span {
+                padding: 0.68rem 1rem;
+                max-width: 86vw;
+                text-align: center;
+                line-height: 1.6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="scene">
+        <div class="dust" id="dust"></div>
+        <div class="title-wrap">
+            <h1>星光写给董昊闻</h1>
+            <p>轻点每一颗闪亮的星星，夜空就会为董昊闻送出一串温柔又热烈的祝福。</p>
+        </div>
+        <div class="heart-stars" id="heartStars" aria-label="可点击的星星爱心"></div>
+        <div class="wish-layer" id="wishLayer"></div>
+        <div class="hint">
+            <span>点击任意星星，夜空会随机撒下多条“董昊闻……”的发光祝福</span>
+        </div>
+    </main>
+
+    <script>
+        const dust = document.getElementById("dust");
+        const heartStars = document.getElementById("heartStars");
+        const wishLayer = document.getElementById("wishLayer");
+
+        const blessings = [
+            "董昊闻身体健康",
+            "董昊闻事事顺心",
+            "董昊闻多喝热水",
+            "董昊闻心想事成",
+            "董昊闻平安喜乐",
+            "董昊闻比赛顺利",
+            "董昊闻夺冠加油",
+            "董昊闻天天开心",
+            "董昊闻笑口常开",
+            "董昊闻顺顺利利",
+            "董昊闻前程似锦",
+            "董昊闻好运常在",
+            "董昊闻福气满满",
+            "董昊闻闪闪发光",
+            "董昊闻星途灿烂",
+            "董昊闻梦想成真",
+            "董昊闻万事胜意",
+            "董昊闻一切如愿",
+            "董昊闻心情明朗",
+            "董昊闻生活甜甜",
+            "董昊闻平安顺遂",
+            "董昊闻无忧无虑",
+            "董昊闻幸福长久",
+            "董昊闻快乐加倍",
+            "董昊闻能量满格",
+            "董昊闻精神饱满",
+            "董昊闻状态超好",
+            "董昊闻收获满仓",
+            "董昊闻步步高升",
+            "董昊闻一路繁花",
+            "董昊闻春风得意",
+            "董昊闻所愿皆得",
+            "董昊闻未来可期",
+            "董昊闻平步青云",
+            "董昊闻风采满分",
+            "董昊闻灵感爆棚",
+            "董昊闻好运连连",
+            "董昊闻幸运常伴",
+            "董昊闻幸福常驻",
+            "董昊闻温柔被待",
+            "董昊闻热爱有回响",
+            "董昊闻坚持有收获",
+            "董昊闻努力有结果",
+            "董昊闻每次出发都顺利",
+            "董昊闻每次拼搏都精彩",
+            "董昊闻每个清晨都明亮",
+            "董昊闻每个夜晚都安稳",
+            "董昊闻今天比昨天更闪耀",
+            "董昊闻明天比今天更顺心",
+            "董昊闻日日有惊喜",
+            "董昊闻月月有收获",
+            "董昊闻年年有成长",
+            "董昊闻总能逢凶化吉",
+            "董昊闻总能遇见美好",
+            "董昊闻总能被世界温柔相待",
+            "董昊闻总能跨过难关",
+            "董昊闻总能赢得掌声",
+            "董昊闻总能保持热爱",
+            "董昊闻总能奔赴山海",
+            "董昊闻总有光照亮前路",
+            "董昊闻总有星星陪伴",
+            "董昊闻总有好消息降临",
+            "董昊闻总有真诚围绕",
+            "董昊闻总有勇气向前",
+            "董昊闻总有底气发光",
+            "董昊闻学习顺顺当当",
+            "董昊闻考试发挥超常",
+            "董昊闻答题思路清晰",
+            "董昊闻复习效率拉满",
+            "董昊闻解题得心应手",
+            "董昊闻做题灵光闪现",
+            "董昊闻每道题都迎刃而解",
+            "董昊闻学业稳稳进步",
+            "董昊闻知识越学越通透",
+            "董昊闻成绩一路上涨",
+            "董昊闻课堂状态在线",
+            "董昊闻作业完成轻松",
+            "董昊闻记忆力越来越强",
+            "董昊闻表达越来越自信",
+            "董昊闻思维越来越敏捷",
+            "董昊闻专注力一直在线",
+            "董昊闻比赛旗开得胜",
+            "董昊闻赛场势如破竹",
+            "董昊闻发挥稳定出色",
+            "董昊闻每次上场都惊艳",
+            "董昊闻训练成果满满",
+            "董昊闻体能状态绝佳",
+            "董昊闻战术执行完美",
+            "董昊闻节奏掌控稳稳的",
+            "董昊闻关键时刻超给力",
+            "董昊闻每次冲刺都带风",
+            "董昊闻每次跳跃都轻盈",
+            "董昊闻每次发力都刚刚好",
+            "董昊闻每场比赛都不留遗憾",
+            "董昊闻每个回合都自信十足",
+            "董昊闻冠军之路一路畅通",
+            "董昊闻奖牌向你奔来",
+            "董昊闻荣耀时刻属于你",
+            "董昊闻冲线那刻全场欢呼",
+            "董昊闻汗水都变成勋章",
+            "董昊闻拼劲一直在线",
+            "董昊闻事业一路开挂",
+            "董昊闻工作节节高升",
+            "董昊闻项目推进顺畅",
+            "董昊闻合作愉快高效",
+            "董昊闻灵感与机会双双来到",
+            "董昊闻职场一路发光",
+            "董昊闻付出总有回报",
+            "董昊闻努力总被看见",
+            "董昊闻目标都能按时完成",
+            "董昊闻每一步都算数",
+            "董昊闻每份认真都有答案",
+            "董昊闻每次尝试都更进一步",
+            "董昊闻每段旅程都值得",
+            "董昊闻每个计划都顺利落地",
+            "董昊闻工作生活都平衡",
+            "董昊闻被好运轻轻偏爱",
+            "董昊闻被幸福稳稳接住",
+            "董昊闻被温暖长久包围",
+            "董昊闻被星光悄悄守护",
+            "董昊闻出门一路绿灯",
+            "董昊闻回家一路安心",
+            "董昊闻四季平安顺遂",
+            "董昊闻吃得香睡得甜",
+            "董昊闻每天都元气满满",
+            "董昊闻早睡早起身体棒棒",
+            "董昊闻烦恼退退退",
+            "董昊闻压力轻轻散开",
+            "董昊闻好运扑面而来",
+            "董昊闻快乐源源不断",
+            "董昊闻生活总有小确幸",
+            "董昊闻身边一直有爱",
+            "董昊闻身边一直有光",
+            "董昊闻身边一直有好朋友",
+            "董昊闻身边一直有支持与鼓励",
+            "董昊闻心里一直住着晴天",
+            "董昊闻眼里一直闪着光",
+            "董昊闻脚下的路越走越宽",
+            "董昊闻抬头就见满天星辰",
+            "董昊闻低头也有踏实答案",
+            "董昊闻心怀热望所向披靡",
+            "董昊闻勇敢追梦不负青春",
+            "董昊闻赤诚善良被世界珍惜",
+            "董昊闻努力奋斗终有回响",
+            "董昊闻遇山开路遇水架桥",
+            "董昊闻把喜欢的事做到极致",
+            "董昊闻把想走的路走成风景",
+            "董昊闻在热爱里闪闪发亮",
+            "董昊闻在挑战里越战越勇",
+            "董昊闻在期待中迎来好结果",
+            "董昊闻在每个阶段都越来越棒",
+            "董昊闻在平凡日子里收集浪漫",
+            "董昊闻在重要时刻总能超常发挥",
+            "董昊闻今天有好心情",
+            "董昊闻今天有好消息",
+            "董昊闻今天有好状态",
+            "董昊闻今天一路顺风",
+            "董昊闻今天特别幸运",
+            "董昊闻今天也被爱包围",
+            "董昊闻今天也收获满满",
+            "董昊闻今天也万分耀眼",
+            "董昊闻明天会更精彩",
+            "董昊闻明天会更顺利",
+            "董昊闻明天会有更大的惊喜",
+            "董昊闻明天继续发光发热",
+            "董昊闻未来一路生花",
+            "董昊闻未来一路凯歌",
+            "董昊闻未来一路坦途",
+            "董昊闻未来一路都有掌声",
+            "董昊闻未来每一步都坚定",
+            "董昊闻未来每一天都值得期待",
+            "董昊闻旅途平安愉快",
+            "董昊闻路上总有好风景",
+            "董昊闻每次出门都一路平安",
+            "董昊闻每次归来都满载而归",
+            "董昊闻每一次相遇都恰逢其时",
+            "董昊闻每一次努力都不被辜负",
+            "董昊闻每一次等待都有回音",
+            "董昊闻每一次坚持都开花结果",
+            "董昊闻每一次上场都气场全开",
+            "董昊闻每一次亮相都惊艳四方",
+            "董昊闻每一次转身都走向更好的自己",
+            "董昊闻每一天都自在从容",
+            "董昊闻每一天都神采奕奕",
+            "董昊闻每一天都顺心顺意",
+            "董昊闻每一天都遇见温暖",
+            "董昊闻每一天都被好运轻吻",
+            "董昊闻每一天都比昨天幸福一点",
+            "董昊闻每一年都收获成长和掌声",
+            "董昊闻每一年都比想象中更厉害",
+            "董昊闻一路有鲜花也有掌声",
+            "董昊闻一路有勇气也有底气",
+            "董昊闻一路有惊喜也有感动",
+            "董昊闻一路都被世界偏爱",
+            "董昊闻一路都走在开阔晴朗的方向",
+            "董昊闻心中所盼皆有回音",
+            "董昊闻眼前所行皆是坦途",
+            "董昊闻脚步坚定不慌不忙",
+            "董昊闻眉眼舒展自在明朗",
+            "董昊闻风雨之后总见彩虹",
+            "董昊闻所到之处皆有美好",
+            "董昊闻所有等待都值得",
+            "董昊闻所有努力都闪闪发亮",
+            "董昊闻所有愿望都慢慢实现",
+            "董昊闻所有奔赴都有意义",
+            "董昊闻所有比赛都稳住节奏",
+            "董昊闻所有考验都顺利通过",
+            "董昊闻所有计划都越来越顺",
+            "董昊闻所有目标都一一抵达",
+            "董昊闻所有热爱都有归处",
+            "董昊闻所有美梦都柔软成真",
+            "董昊闻永远少年意气",
+            "董昊闻永远热烈勇敢",
+            "董昊闻永远清澈明亮",
+            "董昊闻永远自由洒脱",
+            "董昊闻永远被真心喜欢",
+            "董昊闻永远被幸运眷顾",
+            "董昊闻永远有重新出发的勇气",
+            "董昊闻永远有爱也有被爱",
+            "董昊闻永远奔跑在自己的热爱里",
+            "董昊闻永远值得最好的祝福"
+        ];
+
+        function createDust() {
+            const count = 120;
+            for (let i = 0; i < count; i += 1) {
+                const point = document.createElement("span");
+                point.className = "dust-point";
+                const size = Math.random() * 2.6 + 1;
+                point.style.width = `${size}px`;
+                point.style.height = `${size}px`;
+                point.style.left = `${Math.random() * 100}%`;
+                point.style.top = `${Math.random() * 100}%`;
+                point.style.animationDuration = `${Math.random() * 5 + 3.8}s`;
+                point.style.animationDelay = `${Math.random() * -6}s`;
+                dust.appendChild(point);
+            }
+        }
+
+        function heartPoint(t) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            return { x, y };
+        }
+
+        function createHeartStars() {
+            const totalStars = 88;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const mobile = width < 768;
+            const scale = mobile ? Math.min(width, height) * 0.017 : Math.min(width, height) * 0.019;
+            const centerX = width / 2;
+            const centerY = height * (mobile ? 0.58 : 0.55);
+
+            heartStars.innerHTML = "";
+
+            for (let i = 0; i < totalStars; i += 1) {
+                const t = (Math.PI * 2 * i) / totalStars;
+                const point = heartPoint(t);
+                const jitterX = (Math.random() - 0.5) * (mobile ? 13 : 18);
+                const jitterY = (Math.random() - 0.5) * (mobile ? 13 : 18);
+                const x = centerX + point.x * scale + jitterX;
+                const y = centerY - point.y * scale + jitterY;
+                const star = document.createElement("button");
+                const size = Math.random() * (mobile ? 10 : 12) + (mobile ? 10 : 12);
+                star.className = "star";
+                star.type = "button";
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                star.style.setProperty("--size", `${size}px`);
+                star.style.setProperty("--delay", `${(Math.random() * 2.8).toFixed(2)}s`);
+                star.style.setProperty("--twinkle-duration", `${(Math.random() * 2.6 + 1.8).toFixed(2)}s`);
+                star.style.setProperty("--float-duration", `${(Math.random() * 3.8 + 3.2).toFixed(2)}s`);
+                star.setAttribute("aria-label", "点亮董昊闻的祝福星星");
+                star.addEventListener("click", () => burstWishes(x, y));
+                heartStars.appendChild(star);
+            }
+        }
+
+        function pickBlessings(count) {
+            const pool = [...blessings];
+            const result = [];
+            const total = Math.min(count, pool.length);
+
+            for (let i = 0; i < total; i += 1) {
+                const index = Math.floor(Math.random() * pool.length);
+                result.push(pool.splice(index, 1)[0]);
+            }
+
+            return result;
+        }
+
+        function burstWishes(originX, originY) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const wishes = pickBlessings(window.innerWidth < 768 ? 8 : 10);
+
+            wishes.forEach((text, index) => {
+                const wish = document.createElement("div");
+                const angle = (Math.PI * 2 * index) / wishes.length + Math.random() * 0.35;
+                const radius = (window.innerWidth < 768 ? 58 : 86) + Math.random() * (window.innerWidth < 768 ? 40 : 64);
+                const targetX = Math.min(width - 60, Math.max(60, originX + Math.cos(angle) * radius));
+                const targetY = Math.min(height - 60, Math.max(140, originY + Math.sin(angle) * radius));
+                const driftX = `${(Math.random() - 0.5) * 28}px`;
+                const driftY = `${-56 - Math.random() * 50}px`;
+                wish.className = "wish";
+                wish.textContent = text;
+                wish.style.setProperty("--x", `${targetX}px`);
+                wish.style.setProperty("--y", `${targetY}px`);
+                wish.style.setProperty("--rotate", `${(Math.random() - 0.5) * 10}deg`);
+                wish.style.setProperty("--drift-x", driftX);
+                wish.style.setProperty("--drift-y", driftY);
+                wish.style.animationDelay = `${index * 0.05}s`;
+                wishLayer.appendChild(wish);
+
+                window.setTimeout(() => {
+                    wish.remove();
+                }, 2300);
+            });
+        }
+
+        let resizeTimer = null;
+
+        window.addEventListener("resize", () => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(createHeartStars, 180);
+        });
+
+        createDust();
+        createHeartStars();
+    </script>
+</body>
+</html>
